@@ -12,15 +12,19 @@ var answerBank = [
 ];
 var solutionBank = ["Object", "<script>", "while (true)", "All of the above"];
 var questionIndex = 0;
-var playerAns = [];
+// var playerAns = [];
+// I = ++J
+var playerScore = 0;
+var playerArray = JSON.parse(localStorage.getItem('players')) || [];
 var startBtn = document.querySelector('#start');
-// timer vars
+var ulEl = document.querySelector("#question-options");
+var notif = document.querySelector('#ans-result');
 var timerEl = document.querySelector("#timer");
 var timeLeft = 10;
-
+// arrays of objects == JSON
 // when start button clicked: cycle question + hide start button
 startBtn.addEventListener("click", function () {
-    setInterval(function () {
+    var interval = setInterval(function () {
         if (timeLeft > 1) {
             timerEl.textContent = "Time remaining: " + timeLeft + " seconds";
             timeLeft--;
@@ -29,7 +33,7 @@ startBtn.addEventListener("click", function () {
             timeLeft--;
         } else {
             timerEl.textContent = "Game Over";
-            clearInterval();
+            clearInterval(interval);
             checkResults();
         }
     }, 1000);
@@ -41,18 +45,46 @@ startBtn.addEventListener("click", function () {
 function cycleQ(index) {
     var h3 = document.querySelector("#question");
     h3.textContent = questionBank[index];
-    var ulEl = document.querySelector("#question-options");
-    for (var i = index*4; i < 4; i++) {
+    for (var i = (index * 4); i < index * 4 + 4; i++) {
         var li = document.createElement("li");
         li.textContent = answerBank[i];
+        li.setAttribute('data-index', i);
         ulEl.appendChild(li);
     }
 }
 
+// submit answer, check answer, cycle next question, stop quiz, tally score, push score to local storage
 
-window.addEventListener("click", function () {
+ulEl.addEventListener("click", function (event) {
+    // retrieve the data-index, compare to solutionBank
+    var selectedAnsIndex = event.target.getAttribute('data-index');
+    var selectedAns = answerBank[selectedAnsIndex];
+    console.log(selectedAns);
+    var isCorrect = playerScore;
+    // ulEl
+    for (var i = 0; i < 4; i++) {
+        if (selectedAns == solutionBank[i]) {
+            playerScore++;
+            // print correct
+        }
+    }
+    // includes method
+
+    console.log(playerScore);
+
+    if (isCorrect + 1 == playerScore) {
+        // print correct
+        notif.textContent = 'Your answer was correct!';
+    } else {
+        // print not correct
+        notif.textContent = 'Your answer was incorrect';
+        // decrement time
+        timeLeft = timeLeft -10;
+    }
+
     // submit answer
     // check answer
+    // if true push true to playerAns[] else push false
 });
 
 // check answer
@@ -63,6 +95,35 @@ function checkAnswer() {
 
 // stops quiz input, tally score, push score to local storage
 function checkResults() {
-    window.removeEventListener("click");
+    ulEl.removeEventListener("click", function () { });
+    // var score;
 
+    // for (var i = 0; i < 4; i++) {
+    //     if (playerAns[i] == true) {
+    //         score++;
+    //     }
+    // }
+
+
+    var initial = initals();
+    player = {
+        initals: initial, 
+        score: playerScore
+    };
+    playerArray.push(player);
+
+    localStorage.setItem("players", JSON.stringify(playerArray));
+    return;
+}
+
+
+function initals() {
+    var inital = window.prompt("Enter your initals")
+    if (inital.length == 2) {
+        console.log(inital.length);
+        return inital;
+    } else {
+        console.log(inital.length);
+        return initals();
+    }
 }
