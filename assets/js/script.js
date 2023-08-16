@@ -12,16 +12,16 @@ var answerBank = [
 ];
 var solutionBank = ["Object", "<script>", "while (true)", "All of the above"];
 var questionIndex = 0;
-// var playerAns = [];
-// I = ++J
 var playerScore = 0;
 var playerArray = JSON.parse(localStorage.getItem('players')) || [];
+var highScores = document.querySelector('#highScores');
 var startBtn = document.querySelector('#start');
 var ulEl = document.querySelector("#question-options");
 var notif = document.querySelector('#ans-result');
 var timerEl = document.querySelector("#timer");
-var timeLeft = 10;
-// arrays of objects == JSON
+var timeLeft = 40;
+
+
 // when start button clicked: cycle question + hide start button
 startBtn.addEventListener("click", function () {
     var interval = setInterval(function () {
@@ -41,7 +41,23 @@ startBtn.addEventListener("click", function () {
     cycleQ(0);
 })
 
-// cycle question 
+// populates the highscores on the page
+function scores(){
+    // if there are no prev players skip this
+    if (playerArray.length == 0){
+        return;
+    }
+    // print 'initals' and 'score' for each player
+    for (var i = 0; i < playerArray.length; i++){
+        var li = document.createElement("li");
+        li.textContent = playerArray[i].initals + ', ' + playerArray[i].score;
+        console.log(playerArray[i].initals + ', ' + playerArray[i].score);
+        highScores.appendChild(li);
+
+    }
+}
+
+// cycle question. Populates the question and possible answers
 function cycleQ(index) {
     var h3 = document.querySelector("#question");
     h3.textContent = questionBank[index];
@@ -51,60 +67,44 @@ function cycleQ(index) {
         li.setAttribute('data-index', i);
         ulEl.appendChild(li);
     }
+    // need to clear old lis
 }
 
-// submit answer, check answer, cycle next question, stop quiz, tally score, push score to local storage
-
+// Submits the player's answer, checks the answer, and cycles the next question
 ulEl.addEventListener("click", function (event) {
     // retrieve the data-index, compare to solutionBank
     var selectedAnsIndex = event.target.getAttribute('data-index');
     var selectedAns = answerBank[selectedAnsIndex];
     console.log(selectedAns);
     var isCorrect = playerScore;
-    // ulEl
+    
     for (var i = 0; i < 4; i++) {
         if (selectedAns == solutionBank[i]) {
             playerScore++;
-            // print correct
         }
     }
-    // includes method
-
-    console.log(playerScore);
+    // USE includes method?
 
     if (isCorrect + 1 == playerScore) {
-        // print correct
         notif.textContent = 'Your answer was correct!';
     } else {
-        // print not correct
         notif.textContent = 'Your answer was incorrect';
-        // decrement time
         timeLeft = timeLeft -10;
     }
 
-    // submit answer
-    // check answer
-    // if true push true to playerAns[] else push false
+    questionIndex++;
+    if (questionIndex < 4){
+        cycleQ(questionIndex);
+    } else {
+        checkResults();
+        return;
+    }
+
 });
-
-// check answer
-function checkAnswer() {
-
-}
-
 
 // stops quiz input, tally score, push score to local storage
 function checkResults() {
-    ulEl.removeEventListener("click", function () { });
-    // var score;
-
-    // for (var i = 0; i < 4; i++) {
-    //     if (playerAns[i] == true) {
-    //         score++;
-    //     }
-    // }
-
-
+    window.removeEventListener("click", function () { });
     var initial = initals();
     player = {
         initals: initial, 
@@ -116,7 +116,7 @@ function checkResults() {
     return;
 }
 
-
+// prompts user for their initals
 function initals() {
     var inital = window.prompt("Enter your initals")
     if (inital.length == 2) {
@@ -127,3 +127,5 @@ function initals() {
         return initals();
     }
 }
+
+scores();
