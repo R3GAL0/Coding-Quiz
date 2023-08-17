@@ -42,13 +42,13 @@ startBtn.addEventListener("click", function () {
 })
 
 // populates the highscores on the page
-function scores(){
+function scores() {
     // if there are no prev players skip this
-    if (playerArray.length == 0){
+    if (playerArray.length == 0) {
         return;
     }
     // print 'initals' and 'score' for each player
-    for (var i = 0; i < playerArray.length; i++){
+    for (var i = 0; i < playerArray.length; i++) {
         var li = document.createElement("li");
         li.textContent = playerArray[i].initals + ', ' + playerArray[i].score;
         console.log(playerArray[i].initals + ', ' + playerArray[i].score);
@@ -67,7 +67,17 @@ function cycleQ(index) {
         li.setAttribute('data-index', i);
         ulEl.appendChild(li);
     }
-    // need to clear old lis
+
+    // need to clear old list
+    if (index > 0) {
+        for (var i = (index-1) * 4; i < (index-1) * 4 + 4; i++) {
+            // li = find the data-index i
+            var dIndex = ulEl.querySelectorAll('data-index');
+            var li; 
+            console.log(dIndex);
+            // li.textContent = ' ';
+        }
+    }
 }
 
 // Submits the player's answer, checks the answer, and cycles the next question
@@ -75,9 +85,9 @@ ulEl.addEventListener("click", function (event) {
     // retrieve the data-index, compare to solutionBank
     var selectedAnsIndex = event.target.getAttribute('data-index');
     var selectedAns = answerBank[selectedAnsIndex];
-    console.log(selectedAns);
+    console.log("Player selected: " + selectedAns);
     var isCorrect = playerScore;
-    
+
     for (var i = 0; i < 4; i++) {
         if (selectedAns == solutionBank[i]) {
             playerScore++;
@@ -89,13 +99,14 @@ ulEl.addEventListener("click", function (event) {
         notif.textContent = 'Your answer was correct!';
     } else {
         notif.textContent = 'Your answer was incorrect';
-        timeLeft = timeLeft -10;
+        timeLeft = timeLeft - 10;
     }
 
     questionIndex++;
-    if (questionIndex < 4){
+    if (questionIndex < 4) {
         cycleQ(questionIndex);
     } else {
+        ulEl.removeEventListener("click", function(){});
         checkResults();
         return;
     }
@@ -104,10 +115,10 @@ ulEl.addEventListener("click", function (event) {
 
 // stops quiz input, tally score, push score to local storage
 function checkResults() {
-    window.removeEventListener("click", function () { });
+    ulEl.removeEventListener("click", function () { });
     var initial = initals();
     player = {
-        initals: initial, 
+        initals: initial,
         score: playerScore
     };
     playerArray.push(player);
@@ -120,10 +131,8 @@ function checkResults() {
 function initals() {
     var inital = window.prompt("Enter your initals")
     if (inital.length == 2) {
-        console.log(inital.length);
         return inital;
     } else {
-        console.log(inital.length);
         return initals();
     }
 }
