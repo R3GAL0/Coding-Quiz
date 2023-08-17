@@ -107,7 +107,7 @@ ulEl.addEventListener("click", function (event) {
         cycleQ(questionIndex);
     } else {
         ulEl.removeEventListener("click", function(){});
-        checkResults();
+        timeLeft = 0;
         return;
     }
 
